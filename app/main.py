@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from mangum import Mangum
 
-app = FastAPI(root_path="/Prod")
+app = FastAPI()
 
 @app.get("/")
 def root():
