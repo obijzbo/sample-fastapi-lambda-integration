@@ -16,8 +16,9 @@ Resources:
       Architectures:
         - x86_64
       FunctionUrlConfig:
-        AuthType: NONE  # Public Function URL
+        AuthType: NONE
+
 Outputs:
   FunctionUrl:
-    Description: "Lambda Function URL"
+    Description: "Public URL of the Lambda function"
     Value: !GetAtt FastApiFunction.FunctionUrl

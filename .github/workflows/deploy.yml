@@ -1,17 +1,12 @@
-name: Deploy FastAPI to AWS Lambda
+name: Deploy FastAPI to Lambda Function URL
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
     - name: Checkout code
@@ -22,9 +17,8 @@ jobs:
       with:
         python-version: "3.11"
 
-    - name: Install AWS SAM CLI
-      run: |
-        pip install aws-sam-cli
+    - name: Install SAM CLI
+      run: pip install aws-sam-cli
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
@@ -33,14 +27,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: SAM build
+    - name: Build with SAM
       run: sam build
 
-    - name: SAM deploy
+    - name: Deploy with SAM
       run: |
         sam deploy \
           --stack-name py-fastapi-lambda-url \
           --resolve-s3 \
           --capabilities CAPABILITY_IAM \
+          --region ${{ secrets.AWS_REGION }} \
           --no-confirm-changeset \
-          --region ${{ secrets.AWS_REGION }}
+          --no-fail-on-empty-changeset
