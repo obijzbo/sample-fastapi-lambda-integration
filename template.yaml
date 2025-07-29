@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: FastAPI app for Lambda
+Description: FastAPI on Lambda using Lambda Function URL
 
 Globals:
   Function:
@@ -13,15 +13,11 @@ Resources:
       CodeUri: .
       Handler: app.main.handler
       Runtime: python3.12
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
-
+      Architectures:
+        - x86_64
+      FunctionUrlConfig:
+        AuthType: NONE  # Public Function URL
 Outputs:
-  ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value:
-      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  FunctionUrl:
+    Description: "Lambda Function URL"
+    Value: !GetAtt FastApiFunction.FunctionUrl

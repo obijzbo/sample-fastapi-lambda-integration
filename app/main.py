@@ -4,7 +4,7 @@ from mangum import Mangum
 app = FastAPI()
 
 @app.get("/")
-def root():
-    return {"message": "Hello from Lambda"}
+def read_root():
+    return {"message": "Hello from Lambda Function URL"}
 
 handler = Mangum(app)
