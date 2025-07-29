@@ -1,0 +1,40 @@
+name: Deploy FastAPI to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Set up AWS SAM CLI
+      uses: aws-actions/setup-sam@v2
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build Lambda function with SAM
+      run: sam build
+
+    - name: Deploy Lambda function with SAM
+      run: |
+        sam deploy --stack-name fastapi-lambda \
+                   --resolve-s3 \
+                   --capabilities CAPABILITY_IAM \
+                   --region ${{ secrets.AWS_REGION }} \
+                   --no-confirm-changeset \
+                   --no-fail-on-empty-changeset
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
