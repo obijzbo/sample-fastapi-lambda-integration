@@ -11,4 +11,8 @@ def root():
 def new():
     return {"message": "New Endpoint added in Lambda Function URL"}
 
+@app.get("/bye")
+def new():
+    return {"message": "Bye!!!"}
+
 handler = Mangum(app)
