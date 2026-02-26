@@ -1,0 +1,41 @@
+name: Deploy Multi-Function Serverless API
+
+on:
+  push:
+    branches: [serverless-image-gallery]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+        cache: 'pip' 
+        cache-dependency-path: '**/requirements.txt'
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Build with SAM
+      # --parallel: Builds all 3 functions at the same time
+      # --cached: Only rebuilds functions where the code or requirements changed
+      run: sam build --parallel --cached
+
+    - name: Deploy with SAM
+      run: |
+        sam deploy \
+          --stack-name demo-multi-function-api \
+          --resolve-s3 \
+          --capabilities CAPABILITY_IAM \
+          --no-confirm-changeset \
+          --no-fail-on-empty-changeset
+          

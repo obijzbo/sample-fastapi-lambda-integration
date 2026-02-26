@@ -4,16 +4,81 @@ Description: FastAPI on Lambda using Lambda Function URL
 
 Globals:
   Function:
-    Timeout: 10
+    Runtime: python3.12
+    Timeout: 15
+    MemorySize: 512
+    Architectures:
+      - arm64
 
 Resources:
+  FastAPIHub:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Demo
+      BinaryMediaTypes:
+        - 'multipart/form-data'
+
   FastApiFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: app/
       Handler: main.handler
-      Runtime: python3.12
-      Architectures:
-        - x86_64
-      FunctionUrlConfig:
-        AuthType: NONE
+      Events:
+        RootPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIHub
+            Path: /
+            Method: GET
+        ProxyPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIHub
+            Path: /{proxy+}
+            Method: ANY
+
+  UploadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/upload/
+      Handler: handler.handler
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DemoImageBucket
+          TABLE_NAME: !Ref DemoMetadataTable
+      Policies:
+        - S3FullAccessPolicy: {BucketName: !Ref DemoImageBucket}
+        - DynamoDBCrudPolicy: {TableName: !Ref DemoMetadataTable}
+      Events:
+        UploadPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIHub
+            Path: /upload
+            Method: POST
+
+  ListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/list/
+      Handler: handler.handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DemoMetadataTable
+      Policies:
+        - DynamoDBReadPolicy: {TableName: !Ref DemoMetadataTable}
+      Events:
+        ListPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIHub
+            Path: /images
+            Method: GET
+
+  DemoImageBucket:
+    Type: AWS::S3::Bucket
+
+  DemoMetadataTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey: {Name: file_id, Type: String}
