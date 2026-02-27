@@ -5,7 +5,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"message": "Hello from Lambda Function URL"}
+    return {"message": "Hello from Lambda Function Root URL"}
 
 @app.get("/new")
 def new():
