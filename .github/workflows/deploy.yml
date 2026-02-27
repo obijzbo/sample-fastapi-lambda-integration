@@ -33,7 +33,7 @@ jobs:
     - name: Deploy with SAM
       run: |
         sam deploy \
-          --stack-name python-fastapi-lambda-url \
+          --stack-name fastapi-lambda-url \
           --resolve-s3 \
           --capabilities CAPABILITY_IAM \
           --region ${{ secrets.AWS_REGION }} \
