@@ -5,11 +5,11 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"message": "Hello from Lambda Function URL"}
+    return {"message": "Root!!!"}
 
-@app.get("/new")
+@app.get("/hello")
 def new():
-    return {"message": "New Endpoint added in Lambda Function URL"}
+    return {"message": "Hello!!!"}
 
 @app.get("/bye")
 def bye():
